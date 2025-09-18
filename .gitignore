@@ -4,3 +4,6 @@ Game/obj
 Game/UserSettings/Layouts
 Game/Logs
 Game/Temp
+Game/Core.csproj
+Game/Assembly-CSharp.csproj
+Game/Game.sln
