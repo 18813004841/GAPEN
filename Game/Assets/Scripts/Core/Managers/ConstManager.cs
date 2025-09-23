@@ -13,4 +13,13 @@
             public const string SWITCH_DEBUG = "switch_debug";
         }
     }
+
+    public class EditorConstManager
+    {
+        public class StringConst
+        {
+            public const string Bundle_BundleOutFolder = "Assets/BuildOutFolder/AssetBundles/Bundles";
+            public const string Bundle_ManifestOutFolder = "Assets/BuildOutFolder/AssetBundles/Manifests";
+        }
+    }
 }

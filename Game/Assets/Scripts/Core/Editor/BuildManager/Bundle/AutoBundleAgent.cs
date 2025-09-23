@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -89,8 +90,10 @@ namespace Core.Bundle
                 {
                     assetBundleName = bundleName,
                     assetNames = allAssetName,
-                    addressableNames = allAssetName.Select(Path.GetFileNameWithoutExtension).ToArray()
+                    addressableNames = allAssetName.Select(CalcAddressName).ToArray()
                 };
+                
+                allAssetBundleBuild.Add(assetBundleBuild);
             }
 
             BundleBuildSetting setting = new BundleBuildSetting();
@@ -106,8 +109,17 @@ namespace Core.Bundle
         {
             var manifest = ScriptableObject.CreateInstance<CompatibilityAssetBundleManifest>();
             manifest.SetResults(results.BundleInfos);
-            AssetDatabase.CreateAsset(manifest, outputPath);
-            Debug.Log($"Generating AssetBundleManifest: {outputPath}");
+            try
+            {
+                AssetDatabase.CreateAsset(manifest, Path.Combine(outputPath));
+                D.BuildLog($"Generating AssetBundleManifest: {outputPath}");
+            }
+            catch (Exception e)
+            {
+                D.BuildError($"Generating AssetBundleManifest failed: {outputPath}");
+                D.BuildError(e.Message);
+                throw;
+            }
         }
         
         private string CalcAssetBundleName(string assetPath)
@@ -128,13 +140,16 @@ namespace Core.Bundle
                 return string.Empty;
             }
             
-            if (parentFolder.Contains("@"))
+            parentFolder = parentFolder.Replace("\\", "/");
+            var parentFolderName = Path.GetFileName(parentFolder);
+            
+            if (parentFolderName.Contains("@"))
             {
-                parentFolder = parentFolder.Split('@')[0];
-                return parentFolder.ToLower() + ".ab";
+                parentFolderName = parentFolderName.Split('@')[0];
+                return parentFolderName.ToLower() + ".ab";
             }
             
-            return parentFolder.ToLower() + ".ab";
+            return parentFolderName.ToLower() + ".ab";
         }
         
         bool TryAddPackedAsset(string bundleName,string assetPath)
@@ -179,6 +194,27 @@ namespace Core.Bundle
             }
 
             return true;
+        }
+        
+        private string CalcAddressName(string fullName)
+        {
+            var addressName = fullName;
+            
+            //找到fullname属于_allAssetFolders的哪个路径，然后把这个路径替换成空
+            foreach (var folder in _allAssetFolders)
+            {
+                if (fullName.StartsWith(folder))
+                {
+                    addressName = fullName.Replace(folder + "/", "");
+                    break;
+                }
+            }
+            
+            addressName = addressName.Replace("\\", "/");
+            addressName = addressName.ToLower();
+            addressName = Path.ChangeExtension(addressName, null);
+            
+            return addressName;
         }
     }
 }
