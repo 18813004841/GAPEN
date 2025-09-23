@@ -7,3 +7,8 @@ Game/Temp
 Game/Core.csproj
 Game/Assembly-CSharp.csproj
 Game/Game.sln
+Game/Assets/BuildOutFolder
+Game/Assets/BuildOutFolder.meta
+**.csproj
+*.csproj
+Game/UserSettings/EditorUserSettings.asset
